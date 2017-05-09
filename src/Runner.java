@@ -4,16 +4,17 @@ import java.util.List;
 import processing.core.PApplet;
 
 public class Runner extends PApplet {
-
+	
 	private boolean[] keys = new boolean[200];
 	private List<Solid> solids;
-	private Projectile player;
+	private Projectile projectile;
+	private long last;
 	
 	private Runner() {
 		
 		solids = new ArrayList<Solid>();
 		solids.add(new Solid(200, 130, 240, 140, this));
-		player = new Projectile(220, 110, this);
+		projectile = new Projectile(220, 110, this);
 		
 	}
 
@@ -58,13 +59,29 @@ public class Runner extends PApplet {
 	@Override
 	public void draw() {
 		
+		if (last == 0) {
+			
+			last = System.currentTimeMillis();
+			
+		}
 		background(200);
-		player.draw();
+		projectile.draw();
 		for (Solid  p : solids) {
 			
 			p.drawPlatform();
 			
 		}
+		if (keyPressed && keys[(int) ' ']) {
+			
+			projectile.move(mouseX, mouseY);
+			projectile.decelerate();
+			
+		} else {
+			
+			projectile.tick(System.currentTimeMillis() - last);
+			
+		}
+		last = System.currentTimeMillis();
 
 	}
 
