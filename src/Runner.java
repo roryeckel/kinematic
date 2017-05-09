@@ -9,6 +9,7 @@ public class Runner extends PApplet {
 	private List<Solid> solids;
 	private Projectile projectile;
 	private long last;
+	private Point2D mouseHeld = null;
 	
 	private Runner() {
 		
@@ -71,14 +72,33 @@ public class Runner extends PApplet {
 			p.drawPlatform();
 			
 		}
-		if (keyPressed && keys[(int) ' ']) {
+		if (mouseHeld == null) {
 			
-			projectile.move(mouseX, mouseY);
-			projectile.decelerate();
+			projectile.tick(System.currentTimeMillis() - last);
 			
 		} else {
 			
-			projectile.tick(System.currentTimeMillis() - last);
+			projectile.move(mouseX, mouseY);
+			
+		}
+		if (mousePressed) {
+			
+			if (mouseHeld == null) {
+								
+				mouseHeld = new Point2D(mouseX, mouseY);
+				
+			}
+			line(mouseX, mouseY, mouseHeld.getX(), mouseHeld.getY());
+			
+		} else {
+			
+			if (mouseHeld != null) {
+				
+				projectile.setXVel((mouseX - mouseHeld.getX()) / 70);
+				projectile.setYVel((mouseY - mouseHeld.getY()) / 70);
+				
+			}
+			mouseHeld = null;
 			
 		}
 		last = System.currentTimeMillis();

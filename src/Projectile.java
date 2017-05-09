@@ -8,17 +8,21 @@ public class Projectile {
 	 */
 	
 	public static float GRAVITY = 0.004f;
-	private float x;
-	private float y;
+	private Point2D pos;
 	private float xVel;
 	private float yVel;
 	private PApplet applet;
 	
 	public Projectile(float x, float y, PApplet applet) {
 		
-		setX(x);
-		setY(y);
+		pos = new Point2D(x, y);
 		this.applet = applet;
+		
+	}
+	
+	public void setPosition(Point2D point) {
+		
+		pos = point;
 		
 	}
 	
@@ -26,31 +30,7 @@ public class Projectile {
 		
 		applet.fill(0);
 		applet.ellipseMode(PApplet.CENTER);
-		applet.ellipse(x, y, 5, 5);
-		
-	}
-
-	public float getX() {
-		
-		return x;
-		
-	}
-
-	public void setX(float x) {
-		
-		this.x = x;
-		
-	}
-
-	public float getY() {
-		
-		return y;
-		
-	}
-
-	public void setY(float y) {
-		
-		this.y = y;
+		applet.ellipse(pos.getX(), pos.getY(), 5, 5);
 		
 	}
 
@@ -80,8 +60,8 @@ public class Projectile {
 	
 	public void move(int x, int y) {
 		
-		setX(x);
-		setY(y);
+		pos.setX(x);
+		pos.setY(y);
 		
 	}
 	
@@ -101,26 +81,11 @@ public class Projectile {
 	
 	public void tick(long deltaT) {
 		
-		x += deltaT * xVel;
-		float deltaY = (deltaT * yVel + (0.5f * GRAVITY * deltaT * deltaT));
-		yVel = (float) Math.sqrt(yVel * yVel + (2 * GRAVITY * deltaY));
-		y += deltaY;
-		
-	}
-	
-	public void collide() {
-		
-		
-		
-	}
-	
-	@Override
-	public Projectile clone() {
-		
-		Projectile clone = new Projectile(getX(), getY(), applet);
-		clone.xVel = xVel;
-		clone.yVel = yVel;
-		return clone;
+		float deltaTFloat = deltaT;
+		pos.addX(deltaTFloat * xVel);
+		float deltaY = (deltaTFloat * yVel + (0.5f * GRAVITY * deltaTFloat * deltaTFloat));
+		yVel = (float) Math.sqrt(yVel * yVel + (2f * GRAVITY * deltaTFloat)) * (yVel > 0f ? 1f : -1f);
+		pos.addY(deltaY);
 		
 	}
 
