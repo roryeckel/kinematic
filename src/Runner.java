@@ -74,7 +74,10 @@ public class Runner extends PApplet {
 		}
 		if (mouseHeld == null) {
 			
-			projectile.tick(System.currentTimeMillis() - last);
+			long deltaT = System.currentTimeMillis() - last;
+			projectile.tick(deltaT);
+			text("Sim by Rory Eckel\n" + projectile.xEquation(deltaT) +
+					"\n" + projectile.yEquation(deltaT) + "\n\n" + projectile, 1, 10);
 			
 		} else {
 			

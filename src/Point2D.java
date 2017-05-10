@@ -45,5 +45,12 @@ public class Point2D {
 		this.y = y;
 		
 	}
+	
+	@Override
+	public String toString() {
+		
+		return "(" + x + ", " + y + ")";
+		
+	}
 
 }

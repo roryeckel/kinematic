@@ -2,11 +2,6 @@ import processing.core.PApplet;
 
 public class Projectile {
 	
-	/*
-	 * x = x + vt
-	 * y = y + vt + .5at^2
-	 */
-	
 	public static float GRAVITY = 0.004f;
 	private Point2D pos;
 	private float xVel;
@@ -81,11 +76,33 @@ public class Projectile {
 	
 	public void tick(long deltaT) {
 		
+		// if it will collide, teleport directly to the collision, bounce velocities,
+		// subtract deltaT, and recurse
 		float deltaTFloat = deltaT;
 		pos.addX(deltaTFloat * xVel);
 		float deltaY = (deltaTFloat * yVel + (0.5f * GRAVITY * deltaTFloat * deltaTFloat));
-		yVel = (float) Math.sqrt(yVel * yVel + (2f * GRAVITY * deltaTFloat)) * (yVel > 0f ? 1f : -1f);
+		yVel += GRAVITY * deltaTFloat;
 		pos.addY(deltaY);
+		
+	}
+	
+	public String xEquation(long deltaT) {
+		
+		return "x(final) = " + (int) pos.getX() + " + " + (int) deltaT + " * " + (int) xVel;
+		
+	}
+	
+	public String yEquation(long deltaT) {
+		
+		return "y(final) = " + (int) pos.getY() + " + " + (int) deltaT + " * " + (int) yVel
+				+ " + (.5 * " + GRAVITY + " * " + (int) deltaT + "^2)";
+		
+	}
+	
+	@Override
+	public String toString() {
+		
+		return "Position: " + pos + ", Speed: (" + xVel + ", " + yVel + ")";
 		
 	}
 
