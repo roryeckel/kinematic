@@ -1,6 +1,6 @@
 import processing.core.PApplet;
 
-public class Projectile {
+public class Projectile implements Cloneable {
 	
 	public static float GRAVITY = 0.004f;
 	private Point2D pos;
@@ -12,6 +12,22 @@ public class Projectile {
 		
 		pos = new Point2D(x, y);
 		this.applet = applet;
+		
+	}
+	
+	@Override
+	public Projectile clone() {
+		
+		Projectile clone = new Projectile(pos.getX(), pos.getY(), applet);
+		clone.xVel = xVel;
+		clone.yVel = yVel;
+		return clone;
+		
+	}
+	
+	public Point2D getPosition() {
+		
+		return pos;
 		
 	}
 	
@@ -74,15 +90,68 @@ public class Projectile {
 		
 	}
 	
-	public void tick(long deltaT) {
+	public void tick(float deltaT) {
 		
 		// if it will collide, teleport directly to the collision, bounce velocities,
 		// subtract deltaT, and recurse
-		float deltaTFloat = deltaT;
-		pos.addX(deltaTFloat * xVel);
-		float deltaY = (deltaTFloat * yVel + (0.5f * GRAVITY * deltaTFloat * deltaTFloat));
-		yVel += GRAVITY * deltaTFloat;
+		pos.addX(deltaT * xVel);
+		float deltaY = (deltaT * yVel + (0.5f * GRAVITY * deltaT * deltaT));
+		yVel += GRAVITY * deltaT;
 		pos.addY(deltaY);
+		
+	}
+	
+	public Point2D findCollision(Solid solid) {
+		
+		float[] collisionTimes = new float[4];
+		Point2D[] collisions = new Point2D[4]; // Left, right, top, bottom
+		
+		// Left side
+		float deltaX = solid.getPositionOne().getX() - getPosition().getX();
+		float deltaT = deltaX / getXVel();
+		float deltaY = (deltaT * getYVel() + (0.5f * GRAVITY * deltaT * deltaT));
+		float Y = getPosition().getY() + deltaY;
+		if (solid.getPositionOne().getY() < Y
+				&& Y < solid.getPositionTwo().getY()) {
+			
+			collisions[0] = new Point2D(getPosition().getX() + deltaX, Y);
+			collisionTimes[0] = deltaT;
+			
+		}
+		
+		// Right side
+		deltaX = solid.getPositionTwo().getX() - getPosition().getX();
+		deltaT = deltaX / getXVel();
+		deltaY = (deltaT * getYVel() + (0.5f * GRAVITY * deltaT * deltaT));
+		Y = getPosition().getY() + deltaY;
+		if (solid.getPositionOne().getY() < Y
+				&& Y < solid.getPositionTwo().getY()) {
+			
+			collisions[1] = new Point2D(getPosition().getX() + deltaX, Y);
+			collisionTimes[1] = deltaT;
+					
+		}
+		
+		// Top
+		
+		return null;
+		
+	}
+	
+	public float timeTo(Point2D end) {
+		
+		float deltaY = end.getY() - pos.getY();
+		float timeX = (end.getX() - pos.getX()) / xVel;
+		float deltaYCompare = ((2f * yVel + (GRAVITY * timeX)) / 2f * timeX);
+		if (floatEquals(deltaY, deltaYCompare)) {
+			
+			return timeX;
+			
+		} else {
+			
+			return -1;
+			
+		}
 		
 	}
 	
@@ -96,6 +165,12 @@ public class Projectile {
 		
 		return "y(final) = " + (int) pos.getY() + " + " + (int) deltaT + " * " + (int) yVel
 				+ " + (.5 * " + GRAVITY + " * " + (int) deltaT + "^2)";
+		
+	}
+	
+	private static boolean floatEquals(float one, float two) {
+		
+		return Math.abs(two - one) < 0.00008f;
 		
 	}
 	

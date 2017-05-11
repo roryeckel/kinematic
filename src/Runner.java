@@ -14,8 +14,10 @@ public class Runner extends PApplet {
 	private Runner() {
 		
 		solids = new ArrayList<Solid>();
-		solids.add(new Solid(200, 130, 240, 140, this));
-		projectile = new Projectile(220, 110, this);
+		solids.add(new Solid(200, 130, 300, 170, this));
+		projectile = new Projectile(170, 160, this);
+		projectile.setXVel(0.2f);
+		projectile.setYVel(-0.1f);
 		
 	}
 
@@ -70,6 +72,7 @@ public class Runner extends PApplet {
 		for (Solid  p : solids) {
 			
 			p.drawPlatform();
+			System.out.println(projectile.findCollision(p));
 			
 		}
 		if (mouseHeld == null) {
@@ -92,15 +95,11 @@ public class Runner extends PApplet {
 				
 			}
 			line(mouseX, mouseY, mouseHeld.getX(), mouseHeld.getY());
+			projectile.setXVel((mouseX - mouseHeld.getX()) / 70);
+			projectile.setYVel((mouseY - mouseHeld.getY()) / 70);
 			
 		} else {
 			
-			if (mouseHeld != null) {
-				
-				projectile.setXVel((mouseX - mouseHeld.getX()) / 70);
-				projectile.setYVel((mouseY - mouseHeld.getY()) / 70);
-				
-			}
 			mouseHeld = null;
 			
 		}
