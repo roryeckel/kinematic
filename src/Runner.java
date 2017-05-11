@@ -10,6 +10,7 @@ public class Runner extends PApplet {
 	private Projectile projectile;
 	private long last;
 	private Point2D mouseHeld = null;
+	boolean modifyLast = false;
 	
 	private Runner() {
 		
@@ -50,7 +51,11 @@ public class Runner extends PApplet {
 	}
 
 	@Override
-	public void setup() {}
+	public void setup() {
+		
+		noStroke();
+		
+	}
 
 	@Override
 	public void settings() {
@@ -68,17 +73,37 @@ public class Runner extends PApplet {
 			
 		}
 		background(200);
-		projectile.draw();
 		for (Solid  p : solids) {
 			
 			p.drawPlatform();
-			System.out.println(projectile.findCollision(p));
+			projectile.findCollision(p);
 			
 		}
+		if (keys[(int) ' ']) {
+			
+			if (!modifyLast) {
+				
+				solids.add(new Solid(mouseX, mouseY, mouseX, mouseY, this));
+				
+			} else {
+				
+				Point2D solid = solids.get(solids.size() - 1).getPositionTwo();
+				solid.setX(mouseX);
+				solid.setY(mouseY);
+				
+			}
+			modifyLast = true;
+			
+		} else {
+			
+			modifyLast = false;
+			
+		}
+		projectile.draw();
 		if (mouseHeld == null) {
 			
 			long deltaT = System.currentTimeMillis() - last;
-			projectile.tick(deltaT);
+			projectile.tick(deltaT, solids);
 			text("Sim by Rory Eckel\n" + projectile.xEquation(deltaT) +
 					"\n" + projectile.yEquation(deltaT) + "\n\n" + projectile, 1, 10);
 			

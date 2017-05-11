@@ -1,3 +1,7 @@
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+
 import processing.core.PApplet;
 
 public class Projectile implements Cloneable {
@@ -39,7 +43,6 @@ public class Projectile implements Cloneable {
 	
 	public void draw() {
 		
-		applet.fill(0);
 		applet.ellipseMode(PApplet.CENTER);
 		applet.ellipse(pos.getX(), pos.getY(), 5, 5);
 		
@@ -90,10 +93,23 @@ public class Projectile implements Cloneable {
 		
 	}
 	
-	public void tick(float deltaT) {
+	public void tick(float deltaT, List<Solid> solids) {
 		
-		// if it will collide, teleport directly to the collision, bounce velocities,
-		// subtract deltaT, and recurse
+		for (Solid solid : solids) {
+			
+			CollisionPoint2D point = findCollision(solid)[0];
+			if (point != null && deltaT >= point.getTime()) {
+				
+				setPosition(point);
+				xVel = point.getNewXVel();
+				yVel = point.getNewYVel();
+				deltaT-= point.getTime();
+				break;
+				
+			}
+			
+		}
+		
 		pos.addX(deltaT * xVel);
 		float deltaY = (deltaT * yVel + (0.5f * GRAVITY * deltaT * deltaT));
 		yVel += GRAVITY * deltaT;
@@ -101,40 +117,104 @@ public class Projectile implements Cloneable {
 		
 	}
 	
-	public Point2D findCollision(Solid solid) {
+	public CollisionPoint2D[] findCollision(Solid solid) {
 		
-		float[] collisionTimes = new float[4];
-		Point2D[] collisions = new Point2D[4]; // Left, right, top, bottom
+		CollisionPoint2D[] collisions = new CollisionPoint2D[4];
 		
 		// Left side
 		float deltaX = solid.getPositionOne().getX() - getPosition().getX();
 		float deltaT = deltaX / getXVel();
-		float deltaY = (deltaT * getYVel() + (0.5f * GRAVITY * deltaT * deltaT));
-		float Y = getPosition().getY() + deltaY;
-		if (solid.getPositionOne().getY() < Y
-				&& Y < solid.getPositionTwo().getY()) {
+		float deltaY = 0;
+		float Y = 0;
+		if (deltaT > 0) {
 			
-			collisions[0] = new Point2D(getPosition().getX() + deltaX, Y);
-			collisionTimes[0] = deltaT;
+			deltaY = (deltaT * getYVel() + (0.5f * GRAVITY * deltaT * deltaT));
+			Y = getPosition().getY() + deltaY;
+			if (solid.getPositionOne().getY() < Y
+					&& Y < solid.getPositionTwo().getY()) {
+				
+				collisions[0] = new CollisionPoint2D(getPosition().getX() + deltaX, Y, -xVel, yVel, deltaT);
+				
+			}
 			
 		}
 		
 		// Right side
 		deltaX = solid.getPositionTwo().getX() - getPosition().getX();
 		deltaT = deltaX / getXVel();
-		deltaY = (deltaT * getYVel() + (0.5f * GRAVITY * deltaT * deltaT));
-		Y = getPosition().getY() + deltaY;
-		if (solid.getPositionOne().getY() < Y
-				&& Y < solid.getPositionTwo().getY()) {
+		if (deltaT > 0) {
 			
-			collisions[1] = new Point2D(getPosition().getX() + deltaX, Y);
-			collisionTimes[1] = deltaT;
-					
+			deltaY = (deltaT * getYVel() + (0.5f * GRAVITY * deltaT * deltaT));
+			Y = getPosition().getY() + deltaY;
+			if (solid.getPositionOne().getY() < Y
+					&& Y < solid.getPositionTwo().getY()) {
+				
+				collisions[1] = new CollisionPoint2D(getPosition().getX() + deltaX, Y, -xVel, yVel, deltaT);
+						
+			}
+			
 		}
 		
 		// Top
+		deltaY = solid.getPositionOne().getY() - getPosition().getY();
+		deltaT = (float) ((Math.sqrt(2f * GRAVITY * deltaY + (yVel * yVel)) - yVel) / GRAVITY);
+		float X = 0;
+		if (deltaT > 0) {
+			
+			deltaX = xVel * deltaT;
+			Y = getPosition().getY() + deltaY;
+			X = getPosition().getX() + deltaX;
+			if (solid.getPositionOne().getX() < X
+					&& X < solid.getPositionTwo().getX()) {
+				
+				collisions[2] = new CollisionPoint2D(getPosition().getX() + deltaX, Y, xVel, -yVel, deltaT);
+				
+			}
+			
+		}
 		
-		return null;
+		// Bottom
+		deltaY = solid.getPositionTwo().getY() - getPosition().getY();
+		deltaT = (float) ((-Math.sqrt(2f * GRAVITY * deltaY + (yVel * yVel)) - yVel) / -GRAVITY);
+		if (deltaT > 0) {
+			
+			deltaX = xVel * deltaT;
+			Y = getPosition().getY() + deltaY;
+			X = getPosition().getX() + deltaX;
+			if (solid.getPositionOne().getX() < X
+					&& X < solid.getPositionTwo().getX()) {
+				
+				collisions[3] = new CollisionPoint2D(getPosition().getX() + deltaX, Y, xVel, -yVel, deltaT);
+				
+			}
+			
+		}
+		
+		Arrays.sort(collisions, new Comparator<CollisionPoint2D>() {
+			
+	        @Override
+	        public int compare(CollisionPoint2D o1, CollisionPoint2D o2) {
+	        	
+	        	if (o1 == null && o2 == null) {
+	        		
+	                return 0;
+	                
+	            }
+	            if (o1 == null) {
+	            	
+	                return 1;
+	                
+	            }
+	            if (o2 == null) {
+	            	
+	                return -1;
+	                
+	            }
+	            return o1.compareTo(o2);
+	            
+	        }});
+		
+		return collisions;
 		
 	}
 	
