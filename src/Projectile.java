@@ -103,30 +103,22 @@ public class Projectile implements Cloneable {
 	public void tick(float deltaT, List<Solid> solids) {
 		
 		boolean collided = false;
-		boolean exit = false;
-		while (!exit && !solids.isEmpty()) {
+		CollisionPoint2D point = null;
+		for (Solid solid : solids) {
 			
-			CollisionPoint2D point = null;
-			for (Solid solid : solids) {
+			point = findCollision(solid)[0];
+			if (point != null && deltaT >= point.getTime()) {
 				
-				point = findCollision(solid)[0];
-				exit = true;
-				if (point != null && deltaT >= point.getTime()) {
-					
-					setPosition(point);
-					xVel = point.getNewXVel();
-					yVel = point.getNewYVel();
-					deltaT-= point.getTime();
-					collided = true;
-					exit = false;
-					break;
-					
-				}
+				setPosition(point);
+				xVel = point.getNewXVel();
+				yVel = point.getNewYVel();
+				deltaT-= point.getTime();
+				collided = true;
+				break;
 				
 			}
 			
 		}
-		
 		if (!collided && deltaT > 0) {
 			
 			pos.addX(deltaT * xVel);
