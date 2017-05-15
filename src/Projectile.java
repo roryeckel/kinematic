@@ -47,6 +47,13 @@ public class Projectile implements Cloneable {
 		applet.ellipse(pos.getX(), pos.getY(), 5, 5);
 		
 	}
+	
+	public void drawSmall() {
+		
+		applet.ellipseMode(PApplet.CENTER);
+		applet.ellipse(pos.getX(), pos.getY(), 3, 3);
+		
+	}
 
 	public float getXVel() {
 		

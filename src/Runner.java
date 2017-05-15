@@ -118,6 +118,13 @@ public class Runner extends PApplet {
 			
 		}
 		projectile.draw();
+		Projectile future = projectile.clone();
+		for (int f = 0; f < 100; f++) {
+			
+			future.tick(10, solids);
+			future.drawSmall();
+			
+		}
 		if (mouseHeld == null) {
 			
 			long deltaT = System.currentTimeMillis() - last;

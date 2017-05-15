@@ -3,6 +3,8 @@ public class CollisionPoint2D extends Point2D implements Comparable<CollisionPoi
 	private float time;
 	private float newXVel;
 	private float newYVel;
+	private boolean touchingX;
+	private boolean touchingY;
 
 	public CollisionPoint2D(float x, float y, float newXVel, float newYVel, float time) {
 		
@@ -69,6 +71,30 @@ public class CollisionPoint2D extends Point2D implements Comparable<CollisionPoi
 	public String toString() {
 		
 		return "(" + getX() + ", " + getY() + ", t = " + getTime() + ")";
+		
+	}
+
+	public boolean isTouchingX() {
+		
+		return touchingX;
+		
+	}
+
+	public void setTouchingX(boolean touchingX) {
+		
+		this.touchingX = touchingX;
+		
+	}
+
+	public boolean isTouchingY() {
+		
+		return touchingY;
+		
+	}
+
+	public void setTouchingY(boolean touchingY) {
+		
+		this.touchingY = touchingY;
 		
 	}
 
