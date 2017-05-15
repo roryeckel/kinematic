@@ -15,7 +15,6 @@ public class Runner extends PApplet {
 	private Runner() {
 		
 		solids = new ArrayList<Solid>();
-		solids.add(new Solid(200, 130, 300, 170, this));
 		projectile = new Projectile(170, 160, this);
 		projectile.setXVel(0.2f);
 		projectile.setYVel(-0.1f);
@@ -30,7 +29,21 @@ public class Runner extends PApplet {
 
 	@Override
 	public void keyPressed() {
-
+		
+		if (key == DELETE) {
+			
+			for (Solid solid : solids) {
+				
+				if (solid.isInside(mouseX, mouseY)) {
+					
+					solids.remove(solid);
+					return;
+					
+				}
+				
+			}
+			
+		}
 		if ((int) key < 200) {
 
 			keys[(int) key] = true;
@@ -54,6 +67,7 @@ public class Runner extends PApplet {
 	public void setup() {
 		
 		noStroke();
+		fill(0);
 		
 	}
 
@@ -76,7 +90,6 @@ public class Runner extends PApplet {
 		for (Solid  p : solids) {
 			
 			p.drawPlatform();
-			projectile.findCollision(p);
 			
 		}
 		if (keys[(int) ' ']) {
@@ -96,6 +109,11 @@ public class Runner extends PApplet {
 			
 		} else {
 			
+			if (solids.size() > 0) {
+				
+				solids.get(solids.size() - 1).fixPoints();
+				
+			}
 			modifyLast = false;
 			
 		}
@@ -110,6 +128,11 @@ public class Runner extends PApplet {
 		} else {
 			
 			projectile.move(mouseX, mouseY);
+			for (Solid solid : solids) {
+				
+				projectile.findCollision(solid);
+				
+			}
 			
 		}
 		if (mousePressed) {
@@ -119,7 +142,9 @@ public class Runner extends PApplet {
 				mouseHeld = new Point2D(mouseX, mouseY);
 				
 			}
+			stroke(0);
 			line(mouseX, mouseY, mouseHeld.getX(), mouseHeld.getY());
+			noStroke();
 			projectile.setXVel((mouseX - mouseHeld.getX()) / 70);
 			projectile.setYVel((mouseY - mouseHeld.getY()) / 70);
 			

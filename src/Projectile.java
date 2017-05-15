@@ -95,25 +95,39 @@ public class Projectile implements Cloneable {
 	
 	public void tick(float deltaT, List<Solid> solids) {
 		
-		for (Solid solid : solids) {
+		boolean collided = false;
+		boolean exit = false;
+		while (!exit && !solids.isEmpty()) {
 			
-			CollisionPoint2D point = findCollision(solid)[0];
-			if (point != null && deltaT >= point.getTime()) {
+			CollisionPoint2D point = null;
+			for (Solid solid : solids) {
 				
-				setPosition(point);
-				xVel = point.getNewXVel();
-				yVel = point.getNewYVel();
-				deltaT-= point.getTime();
-				break;
+				point = findCollision(solid)[0];
+				exit = true;
+				if (point != null && deltaT >= point.getTime()) {
+					
+					setPosition(point);
+					xVel = point.getNewXVel();
+					yVel = point.getNewYVel();
+					deltaT-= point.getTime();
+					collided = true;
+					exit = false;
+					break;
+					
+				}
 				
 			}
 			
 		}
 		
-		pos.addX(deltaT * xVel);
-		float deltaY = (deltaT * yVel + (0.5f * GRAVITY * deltaT * deltaT));
-		yVel += GRAVITY * deltaT;
-		pos.addY(deltaY);
+		if (!collided && deltaT > 0) {
+			
+			pos.addX(deltaT * xVel);
+			float deltaY = (deltaT * yVel + (0.5f * GRAVITY * deltaT * deltaT));
+			yVel += GRAVITY * deltaT;
+			pos.addY(deltaY);
+			
+		}
 		
 	}
 	
@@ -190,7 +204,31 @@ public class Projectile implements Cloneable {
 			
 		}
 		
-		Arrays.sort(collisions, new Comparator<CollisionPoint2D>() {
+		arraySort(collisions);
+		return collisions;
+		
+	}
+	
+	public float timeTo(Point2D end) {
+		
+		float deltaY = end.getY() - pos.getY();
+		float timeX = (end.getX() - pos.getX()) / xVel;
+		float deltaYCompare = ((2f * yVel + (GRAVITY * timeX)) / 2f * timeX);
+		if (floatEquals(deltaY, deltaYCompare)) {
+			
+			return timeX;
+			
+		} else {
+			
+			return -1;
+			
+		}
+		
+	}
+	
+	private static void arraySort(CollisionPoint2D[] vals) {
+		
+		Arrays.sort(vals, new Comparator<CollisionPoint2D>() {
 			
 	        @Override
 	        public int compare(CollisionPoint2D o1, CollisionPoint2D o2) {
@@ -214,25 +252,6 @@ public class Projectile implements Cloneable {
 	            
 	        }});
 		
-		return collisions;
-		
-	}
-	
-	public float timeTo(Point2D end) {
-		
-		float deltaY = end.getY() - pos.getY();
-		float timeX = (end.getX() - pos.getX()) / xVel;
-		float deltaYCompare = ((2f * yVel + (GRAVITY * timeX)) / 2f * timeX);
-		if (floatEquals(deltaY, deltaYCompare)) {
-			
-			return timeX;
-			
-		} else {
-			
-			return -1;
-			
-		}
-		
 	}
 	
 	public String xEquation(long deltaT) {
@@ -250,7 +269,7 @@ public class Projectile implements Cloneable {
 	
 	private static boolean floatEquals(float one, float two) {
 		
-		return Math.abs(two - one) < 0.00008f;
+		return Math.abs(two - one) < 0.1f;
 		
 	}
 	

@@ -12,53 +12,58 @@ public class Solid {
 		two = new Point2D(x2, y2);
 		this.applet = applet;
 		fixPoints();
-		
+
 	}
-	
+
 	public Point2D getPositionOne() {
-		
+
 		return one;
-		
+
 	}
-	
+
 	public Point2D getPositionTwo() {
-		
+
 		return two;
-		
+
 	}
-	
+
 	public void drawPlatform() {
 
-		applet.fill(0);
 		applet.rectMode(PApplet.CORNERS);
 		applet.rect(one.getX(), one.getY(), two.getX(), two.getY());
-		
+
+	}
+
+	public boolean isInside(Point2D point) {
+
+		return point.getX() > one.getX() && point.getX() < two.getX() && point.getY() > one.getY()
+				&& point.getY() < two.getY();
+
 	}
 
 	public boolean isInside(float x, float y) {
 
-		return x > one.getX() && x < two.getX() && y > one.getY() - 5 && y < two.getY();
-		
+		return x > one.getX() && x < two.getX() && y > one.getY() && y < two.getY();
+
 	}
 
 	public void fixPoints() {
-		
-		float temp;
-		if (two.getY() < one.getY()) {
 
-			temp = two.getY();
+		if (two.getY() < one.getY()) {
+			
+			float temp = two.getY();
 			two.setY(one.getY());
 			one.setY(temp);
 			
 		}
 		if (one.getX() > two.getX()) {
 
-			temp = two.getX();
+			float temp = two.getX();
 			two.setX(one.getX());
 			one.setX(temp);
-			
+
 		}
 		
 	}
-	
+
 }
